@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalCure.</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<style>
+:root {
+            --primary-blue: #1E90FF;
+            --primary-dark: #0d47a1;
+            --primary-light: #bbdefb;
+            --black: #121212;
+            --white: #ffffff;
+            --gray-light: #f5f5f5;
+            --gray-dark: #333333;
+        }
+        
+        [data-theme="dark"] {
+            --primary-blue: #4dabf7;
+            --primary-dark: #1864ab;
+            --primary-light: #1c7ed6;
+            --black: #f8f9fa;
+            --white: #212529;
+            --gray-light: #343a40;
+            --gray-dark: #adb5bd;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--white);
+            color: var(--black);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary-light), var(--white), var(--primary-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        
+        .calculator-container {
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .calculator-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .calculator-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .calculator-tab {
+            background-color: var(--gray-light);
+            color: var(--gray-dark);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .calculator-tab.active {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .calculator-content {
+            display: none;
+        }
+        
+        .calculator-content.active {
+            display: block;
+        }
+        
+        .calculator-display {
+            background-color: var(--gray-light);
+            color: var(--black);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            text-align: right;
+            margin-bottom: 15px;
+            height: 60px;
+            overflow: hidden;
+            border: 2px solid var(--primary-light);
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .calculator-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--gray-dark);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calculator-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .calculator-btn.operator {
+            background-color: var(--primary-blue);
+        }
+        
+        .calculator-btn.equals {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .calculator-btn.clear {
+            background-color: #d9534f;
+        }
+        
+        .calculator-btn.backspace {
+            background-color: #f0ad4e;
+        }
+        
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .scientific-btn {
+            padding: 10px;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--gray-dark);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .scientific-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .scientific-btn.function {
+            background-color: var(--primary-blue);
+        }
+        
+        .converter-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .converter-input label {
+            margin-right: 10px;
+            min-width: 100px;
+        }
+        
+        .converter-input select {
+            margin-right: 10px;
+        }
+        
+        .converter-input input {
+            flex-grow: 1;
+        }
+        
+        .result-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 15px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+            border: 1px solid var(--primary-light);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+        
+        .email-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .email-link:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+        
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .calculator-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .scientific-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .scientific-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .calculator-tabs {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-tab {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand logo-container" href="#">
+                <div class="logo">CalCure</div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#calculator">Calculators</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="container mt-4 py-4">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="display-4 fw-bold">CalCure.⚡</h1>
+                <p class="lead mb-4">Fast, accurate, and reliable.</p>
+            </div>
+        </div>
+        <!-- Calculator Section -->
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <h2 class="m-0">All-in-One Calculator.</h2>
+                <div class="d-flex align-items-center">
+                    <p class="m-0 me-3">From basic arithmetic to advanced functions.</p>
+                    <div class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calculator-tabs">
+                <div class="calculator-tab active" data-target="basic-calculator">Basic</div>
+                <div class="calculator-tab" data-target="scientific-calculator">Scientific</div>
+                <div class="calculator-tab" data-target="conversion-calculator">Conversions</div>
+                <div class="calculator-tab" data-target="finance-calculator">Finance</div>
+                <div class="calculator-tab" data-target="graph-calculator">Graph Generator</div>
+                <div class="calculator-tab" data-target="other-calculator">Other Tools</div>
+            </div>
+            
+            <div class="calculator-content active" id="basic-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Basic Calculator</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="calculator-display" id="basicDisplay">0</div>
+                                <div class="calculator-grid">
+                                    <button class="calculator-btn clear" onclick="clearBasicCalculator()">C</button>
+                                    <button class="calculator-btn backspace" onclick="backspaceBasicCalculator()">⌫</button>
+                                    <button class="calculator-btn operator" onclick="appendToBasicCalculator('%')">%</button>
+                                    <button class="calculator-btn operator" onclick="appendToBasicCalculator('/')">/</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('7')">7</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('8')">8</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('9')">9</button>
+                                    <button class="calculator-btn operator" onclick="appendToBasicCalculator('*')">×</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('4')">4</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('5')">5</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('6')">6</button>
+                                    <button class="calculator-btn operator" onclick="appendToBasicCalculator('-')">-</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('1')">1</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('2')">2</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('3')">3</button>
+                                    <button class="calculator-btn operator" onclick="appendToBasicCalculator('+')">+</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('0')">0</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('.')">.</button>
+                                    <button class="calculator-btn" onclick="appendToBasicCalculator('00')">00</button>
+                                    <button class="calculator-btn equals" onclick="calculateBasicResult()">=</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculator-content" id="scientific-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Scientific Calculator</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="calculator-display" id="scientificDisplay">0</div>
+                                <div class="calculator-grid">
+                                    <button class="calculator-btn clear" onclick="clearScientificCalculator()">C</button>
+                                    <button class="calculator-btn backspace" onclick="backspaceScientificCalculator()">⌫</button>
+                                    <button class="calculator-btn function" onclick="appendToScientificCalculator('sin(')">sin</button>
+                                    <button class="calculator-btn function" onclick="appendToScientificCalculator('cos(')">cos</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('7')">7</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('8')">8</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('9')">9</button>
+                                    <button class="calculator-btn operator" onclick="appendToScientificCalculator('/')">/</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('4')">4</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('5')">5</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('6')">6</button>
+                                    <button class="calculator-btn operator" onclick="appendToScientificCalculator('*')">×</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('1')">1</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('2')">2</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('3')">3</button>
+                                    <button class="calculator-btn operator" onclick="appendToScientificCalculator('-')">-</button>
+                                    
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('0')">0</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('.')">.</button>
+                                    <button class="calculator-btn" onclick="appendToScientificCalculator('00')">00</button>
+                                    <button class="calculator-btn operator" onclick="appendToScientificCalculator('+')">+</button>
+                                </div>
+                                <div class="scientific-buttons">
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('Math.PI')">π</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('Math.E')">e</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('tan(')">tan</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('log10(')">log10</button>
+                                    
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('Math.sqrt(')">√</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('^')">x^y</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('(')">(</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator(')')">)</button>
+                                    
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('Math.pow(10,')">10^x</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('Math.log(')">ln</button>
+                                    <button class="scientific-btn function" onclick="appendToScientificCalculator('1/')">1/x</button>
+                                    <button class="scientific-btn equals" onclick="calculateScientificResult()">=</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculator-content" id="conversion-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Unit Converter</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="conversionType" class="form-label">Select Conversion Type</label>
+                                    <select class="form-select" id="conversionType">
+                                        <option value="length">Length</option>
+                                        <option value="temperature">Temperature</option>
+                                        <option value="weight">Weight</option>
+                                        <option value="currency">Currency</option>
+                                        <option value="area">Area</option>
+                                        <option value="volume">Volume</option>
+                                        <option value="speed">Speed</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Length Converter -->
+                                <div id="lengthConverter" class="converter-container">
+                                    <div class="converter-input">
+                                        <label for="lengthFrom">From:</label>
+                                        <select id="lengthFrom" class="form-select">
+                                            <option value="m">Meters (m)</option>
+                                            <option value="km">Kilometers (km)</option>
+                                            <option value="cm">Centimeters (cm)</option>
+                                            <option value="mm">Millimeters (mm)</option>
+                                            <option value="in">Inches (in)</option>
+                                            <option value="ft">Feet (ft)</option>
+                                            <option value="yd">Yards (yd)</option>
+                                            <option value="mi">Miles (mi)</option>
+                                        </select>
+                                        <input type="number" id="lengthValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="lengthTo">To:</label>
+                                        <select id="lengthTo" class="form-select">
+                                            <option value="m">Meters (m)</option>
+                                            <option value="km">Kilometers (km)</option>
+                                            <option value="cm">Centimeters (cm)</option>
+                                            <option value="mm">Millimeters (mm)</option>
+                                            <option value="in">Inches (in)</option>
+                                            <option value="ft">Feet (ft)</option>
+                                            <option value="yd">Yards (yd)</option>
+                                            <option value="mi">Miles (mi)</option>
+                                        </select>
+                                        <input type="number" id="lengthResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Temperature Converter -->
+                                <div id="temperatureConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="tempFrom">From:</label>
+                                        <select id="tempFrom" class="form-select">
+                                            <option value="c">Celsius (°C)</option>
+                                            <option value="f">Fahrenheit (°F)</option>
+                                            <option value="k">Kelvin (K)</option>
+                                        </select>
+                                        <input type="number" id="tempValue" class="form-control" value="0" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="tempTo">To:</label>
+                                        <select id="tempTo" class="form-select">
+                                            <option value="c">Celsius (°C)</option>
+                                            <option value="f">Fahrenheit (°F)</option>
+                                            <option value="k">Kelvin (K)</option>
+                                        </select>
+                                        <input type="number" id="tempResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Weight Converter -->
+                                <div id="weightConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="weightFrom">From:</label>
+                                        <select id="weightFrom" class="form-select">
+                                            <option value="kg">Kilograms (kg)</option>
+                                            <option value="g">Grams (g)</option>
+                                            <option value="lb">Pounds (lb)</option>
+                                            <option value="oz">Ounces (oz)</option>
+                                            <option value="t">Tonnes (t)</option>
+                                        </select>
+                                        <input type="number" id="weightValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="weightTo">To:</label>
+                                        <select id="weightTo" class="form-select">
+                                            <option value="kg">Kilograms (kg)</option>
+                                            <option value="g">Grams (g)</option>
+                                            <option value="lb">Pounds (lb)</option>
+                                            <option value="oz">Ounces (oz)</option>
+                                            <option value="t">Tonnes (t)</option>
+                                        </select>
+                                        <input type="number" id="weightResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Currency Converter -->
+                                <div id="currencyConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="currencyFrom">From:</label>
+                                        <select id="currencyFrom" class="form-select">
+                                            <option value="usd">USD ($)</option>
+                                            <option value="eur">EUR (€)</option>
+                                            <option value="gbp">GBP (£)</option>
+                                            <option value="jpy">JPY (¥)</option>
+                                            <option value="cad">CAD (C$)</option>
+                                            <option value="php">PHP (₱)</option>
+                                        </select>
+                                        <input type="number" id="currencyValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="currencyTo">To:</label>
+                                        <select id="currencyTo" class="form-select">
+                                            <option value="usd">USD ($)</option>
+                                            <option value="eur">EUR (€)</option>
+                                            <option value="gbp">GBP (£)</option>
+                                            <option value="jpy">JPY (¥)</option>
+                                            <option value="cad">CAD (C$)</option>
+                                            <option value="php">PHP (₱)</option>
+                                        </select>
+                                        <input type="number" id="currencyResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Area Converter -->
+                                <div id="areaConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="areaFrom">From:</label>
+                                        <select id="areaFrom" class="form-select">
+                                            <option value="m2">Square Meters (m²)</option>
+                                            <option value="km2">Square Kilometers (km²)</option>
+                                            <option value="cm2">Square Centimeters (cm²)</option>
+                                            <option value="ha">Hectares (ha)</option>
+                                            <option value="ac">Acres (ac)</option>
+                                            <option value="ft2">Square Feet (ft²)</option>
+                                            <option value="mi2">Square Miles (mi²)</option>
+                                        </select>
+                                        <input type="number" id="areaValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="areaTo">To:</label>
+                                        <select id="areaTo" class="form-select">
+                                            <option value="m2">Square Meters (m²)</option>
+                                            <option value="km2">Square Kilometers (km²)</option>
+                                            <option value="cm2">Square Centimeters (cm²)</option>
+                                            <option value="ha">Hectares (ha)</option>
+                                            <option value="ac">Acres (ac)</option>
+                                            <option value="ft2">Square Feet (ft²)</option>
+                                            <option value="mi2">Square Miles (mi²)</option>
+                                        </select>
+                                        <input type="number" id="areaResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Volume Converter -->
+                                <div id="volumeConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="volumeFrom">From:</label>
+                                        <select id="volumeFrom" class="form-select">
+                                            <option value="l">Liters (L)</option>
+                                            <option value="ml">Milliliters (mL)</option>
+                                            <option value="gal">Gallons (gal)</option>
+                                            <option value="qt">Quarts (qt)</option>
+                                            <option value="pt">Pints (pt)</option>
+                                            <option value="cup">Cups (cup)</option>
+                                            <option value="fl_oz">Fluid Ounces (fl oz)</option>
+                                        </select>
+                                        <input type="number" id="volumeValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="volumeTo">To:</label>
+                                        <select id="volumeTo" class="form-select">
+                                            <option value="l">Liters (L)</option>
+                                            <option value="ml">Milliliters (mL)</option>
+                                            <option value="gal">Gallons (gal)</option>
+                                            <option value="qt">Quarts (qt)</option>
+                                            <option value="pt">Pints (pt)</option>
+                                            <option value="cup">Cups (cup)</option>
+                                            <option value="fl_oz">Fluid Ounces (fl oz)</option>
+                                        </select>
+                                        <input type="number" id="volumeResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Speed Converter -->
+                                <div id="speedConverter" class="converter-container" style="display: none;">
+                                    <div class="converter-input">
+                                        <label for="speedFrom">From:</label>
+                                        <select id="speedFrom" class="form-select">
+                                            <option value="m_s">Meters per second (m/s)</option>
+                                            <option value="km_h">Kilometers per hour (km/h)</option>
+                                            <option value="mph">Miles per hour (mph)</option>
+                                            <option value="ft_s">Feet per second (ft/s)</option>
+                                            <option value="knot">Knots (kn)</option>
+                                        </select>
+                                        <input type="number" id="speedValue" class="form-control" value="1" step="any">
+                                    </div>
+                                    <div class="converter-input">
+                                        <label for="speedTo">To:</label>
+                                        <select id="speedTo" class="form-select">
+                                            <option value="m_s">Meters per second (m/s)</option>
+                                            <option value="km_h">Kilometers per hour (km/h)</option>
+                                            <option value="mph">Miles per hour (mph)</option>
+                                            <option value="ft_s">Feet per second (ft/s)</option>
+                                            <option value="knot">Knots (kn)</option>
+                                        </select>
+                                        <input type="number" id="speedResult" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary w-100" onclick="convertUnits()">Convert</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculator-content" id="graph-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Graph Generator</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="functionInput" class="form-label">Enter Function (e.g., x*x, Math.sin(x), etc.)</label>
+                                    <input type="text" id="functionInput" class="form-control" value="x*x" placeholder="e.g., x*x, Math.sin(x), etc.">
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="xMin" class="form-label">X Min</label>
+                                        <input type="number" id="xMin" class="form-control" value="-10">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="xMax" class="form-label">X Max</label>
+                                        <input type="number" id="xMax" class="form-control" value="10">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100 mb-3" onclick="generateGraph()">Generate Graph</button>
+                                <div class="chart-container">
+                                    <canvas id="graphCanvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculator-content" id="finance-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Finance Calculator</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="financeType" class="form-label">Select Calculator</label>
+                                    <select class="form-select" id="financeType">
+                                        <option value="tip">Tip Calculator</option>
+                                        <option value="loan">Loan Calculator</option>
+                                        <option value="mortgage">Mortgage Calculator</option>
+                                        <option value="investment">Investment Calculator</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Tip Calculator -->
+                                <div id="tipCalculator" class="finance-calculator">
+                                    <div class="mb-3">
+                                        <label for="billAmount" class="form-label">Bill Amount</label>
+                                        <input type="number" id="billAmount" class="form-control" value="100" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tipPercentage" class="form-label">Tip Percentage</label>
+                                        <input type="number" id="tipPercentage" class="form-control" value="15" step="0.1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tipResult" class="form-label">Tip Amount</label>
+                                        <input type="number" id="tipResult" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalAmount" class="form-label">Total Amount</label>
+                                        <input type="number" id="totalAmount" class="form-control" readonly>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateTip()">Calculate Tip</button>
+                                </div>
+                                
+                                <!-- Loan Calculator -->
+                                <div id="loanCalculator" class="finance-calculator" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="loanAmount" class="form-label">Loan Amount</label>
+                                        <input type="number" id="loanAmount" class="form-control" value="10000" step="100">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="interestRate" class="form-label">Annual Interest Rate (%)</label>
+                                        <input type="number" id="interestRate" class="form-control" value="5" step="0.1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="loanTerm" class="form-label">Loan Term (years)</label>
+                                        <input type="number" id="loanTerm" class="form-control" value="5" step="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="monthlyPayment" class="form-label">Monthly Payment</label>
+                                        <input type="number" id="monthlyPayment" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalPayment" class="form-label">Total Payment</label>
+                                        <input type="number" id="totalPayment" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalInterest" class="form-label">Total Interest</label>
+                                        <input type="number" id="totalInterest" class="form-control" readonly>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateLoan()">Calculate Loan</button>
+                                </div>
+                                
+                                <!-- Mortgage Calculator -->
+                                <div id="mortgageCalculator" class="finance-calculator" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="homePrice" class="form-label">Home Price</label>
+                                        <input type="number" id="homePrice" class="form-control" value="250000" step="1000">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="downPayment" class="form-label">Down Payment (%)</label>
+                                        <input type="number" id="downPayment" class="form-control" value="20" step="0.1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mortgageRate" class="form-label">Interest Rate (%)</label>
+                                        <input type="number" id="mortgageRate" class="form-control" value="4.5" step="0.1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mortgageTerm" class="form-label">Loan Term (years)</label>
+                                        <input type="number" id="mortgageTerm" class="form-control" value="30" step="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mortgagePayment" class="form-label">Monthly Payment</label>
+                                        <input type="number" id="mortgagePayment" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mortgageTotal" class="form-label">Total Payment</label>
+                                        <input type="number" id="mortgageTotal" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mortgageInterest" class="form-label">Total Interest</label>
+                                        <input type="number" id="mortgageInterest" class="form-control" readonly>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateMortgage()">Calculate Mortgage</button>
+                                </div>
+                                
+                                <!-- Investment Calculator -->
+                                <div id="investmentCalculator" class="finance-calculator" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="initialInvestment" class="form-label">Initial Investment</label>
+                                        <input type="number" id="initialInvestment" class="form-control" value="1000" step="100">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="monthlyContribution" class="form-label">Monthly Contribution</label>
+                                        <input type="number" id="monthlyContribution" class="form-control" value="100" step="10">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="annualReturn" class="form-label">Annual Return (%)</label>
+                                        <input type="number" id="annualReturn" class="form-control" value="7" step="0.1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="investmentYears" class="form-label">Investment Period (years)</label>
+                                        <input type="number" id="investmentYears" class="form-control" value="10" step="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="futureValue" class="form-label">Future Value</label>
+                                        <input type="number" id="futureValue" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalContributions" class="form-label">Total Contributions</label>
+                                        <input type="number" id="totalContributions" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalInterest" class="form-label">Total Interest Earned</label>
+                                        <input type="number" id="totalInterest" class="form-control" readonly">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateInvestment()">Calculate Investment</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculator-content" id="other-calculator">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Additional Tools</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-primary text-white">
+                                                <h6 class="mb-0">Age Calculator</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="birthDate" class="form-label">Birth Date</label>
+                                                    <input type="date" id="birthDate" class="form-control">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="currentDate" class="form-label">Current Date</label>
+                                                    <input type="date" id="currentDate" class="form-control">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="ageResult" class="form-label">Your Age</label>
+                                                    <input type="text" id="ageResult" class="form-control" readonly>
+                                                </div>
+                                                <button type="button" class="btn btn-primary w-100" onclick="calculateAge()">Calculate Age</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-success text-white">
+                                                <h6 class="mb-0">Percentage Calculator</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="percentageTotal" class="form-label">Total Value</label>
+                                                    <input type="number" id="percentageTotal" class="form-control" value="100">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="percentagePart" class="form-label">Percentage</label>
+                                                    <input type="number" id="percentagePart" class="form-control" value="20">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="percentageResult" class="form-label">Result</label>
+                                                    <input type="text" id="percentageResult" class="form-control" readonly>
+                                                </div>
+                                                <button type="button" class="btn btn-success text-white w-100" onclick="calculatePercentage()">Calculate</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h6 class="mb-0">Quick BMI</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="quickHeight" class="form-label">Height (cm)</label>
+                                                    <input type="number" id="quickHeight" class="form-control" value="170" step="0.01">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="quickWeight" class="form-label">Weight (kg)</label>
+                                                    <input type="number" id="quickWeight" class="form-control" value="70" step="0.01">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="quickBMI" class="form-label">Your BMI</label>
+                                                    <input type="text" id="quickBMI" class="form-control" readonly>
+                                                </div>
+                                                <button type="button" class="btn btn-warning text-dark w-100" onclick="calculateQuickBMI()">Calculate BMI</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-danger text-white">
+                                                <h6 class="mb-0">Grade Calculator</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="testScore" class="form-label">Test Score</label>
+                                                    <input type="number" id="testScore" class="form-control" value="85" min="0" max="100">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="maxScore" class="form-label">Maximum Possible Score</label>
+                                                    <input type="number" id="maxScore" class="form-control" value="100">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="gradeResult" class="form-label">Your Grade</label>
+                                                    <input type="text" id="gradeResult" class="form-control" readonly>
+                                                </div>
+                                                <button type="button" class="btn btn-danger w-100" onclick="calculateGrade()">Calculate Grade</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About Section -->
+    <div class="container mt-5 py-5" id="about">
+        <h2 class="text-center mb-5">About CalCure.</h2>
+        <div class="row">
+            <div class="col-lg-6">
+                <h3>The Cure to All Your Mathematical Problems.</h3>
+                <p>CalCure. is the ultimate all-around calculator for students and professionals. From simple Mathematics to stunning graphs—CalCure. is the cure to all your academic and professional calculation problems.</p>
+                <h3>Fast, Accurate, and Reliable.</h3>
+                <p>Our calculators are designed to be fast, accurate, and reliable on any device. Whether you are a student working on homework or a professional needing quick calculations, CalCure. provides the same high-quality experience.</p>
+                <h3>Comprehensive Mathematical Tools.</h3>
+                <p>CalCure. offers a complete suite of mathematical tools including basic arithmetic, scientific functions, statistical analysis, and graphing capabilities to support all your academic and professional needs.</p>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="1.jpg" alt="Student Calculator" class="img-fluid rounded-3 shadow">
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h5>CalCure.</h5>
+                    <p>Your comprehensive mathematical calculator platform.</p>
+                    <p>For inquiries or complaints, please email: <a href="mailto:santossam969@gmail.com" class="email-link">santossam969@gmail.com</a></p>
+                    <hr class="my-4 bg-light">
+                    <p class="mb-0">&copy; 2025 CalCure. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+         document.querySelectorAll('.calculator-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.calculator-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                document.querySelectorAll('.calculator-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+        
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', function() {
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                document.body.removeAttribute('data-theme');
+                this.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                this.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        });
+        
+        // Basic Calculator Functions
+        let basicDisplayValue = '0';
+        
+        function updateBasicDisplay() {
+            document.getElementById('basicDisplay').textContent = basicDisplayValue;
+        }
+        
+        function clearBasicCalculator() {
+            basicDisplayValue = '0';
+            updateBasicDisplay();
+        }
+        
+        function backspaceBasicCalculator() {
+            if (basicDisplayValue.length > 1) {
+                basicDisplayValue = basicDisplayValue.slice(0, -1);
+            } else {
+                basicDisplayValue = '0';
+            }
+            updateBasicDisplay();
+        }
+        
+        function appendToBasicCalculator(value) {
+            if (basicDisplayValue === '0' && value !== '.') {
+                basicDisplayValue = value;
+            } else {
+                basicDisplayValue += value;
+            }
+            updateBasicDisplay();
+        }
+        
+        function calculateBasicResult() {
+            try {
+                let expression = basicDisplayValue.replace(/%/g, '/100');
+                basicDisplayValue = eval(expression).toString();
+                updateBasicDisplay();
+            } catch (error) {
+                basicDisplayValue = 'Error';
+                updateBasicDisplay();
+                setTimeout(clearBasicCalculator, 1000);
+            }
+        }
+        
+        // Scientific Calculator Functions
+        let scientificDisplayValue = '0';
+        
+        function updateScientificDisplay() {
+            document.getElementById('scientificDisplay').textContent = scientificDisplayValue;
+        }
+        
+        function clearScientificCalculator() {
+            scientificDisplayValue = '0';
+            updateScientificDisplay();
+        }
+        
+        function backspaceScientificCalculator() {
+            if (scientificDisplayValue.length > 1) {
+                scientificDisplayValue = scientificDisplayValue.slice(0, -1);
+            } else {
+                scientificDisplayValue = '0';
+            }
+            updateScientificDisplay();
+        }
+        
+        function appendToScientificCalculator(value) {
+            if (scientificDisplayValue === '0' && value !== '.') {
+                scientificDisplayValue = value;
+            } else {
+                scientificDisplayValue += value;
+            }
+            updateScientificDisplay();
+        }
+        
+        function calculateScientificResult() {
+            try {
+                let expression = scientificDisplayValue.replace(/%/g, '/100');
+                expression = expression.replace(/(\d+)(\s*)\^(\s*)(\d+)/g, '$1 ** $4');
+                scientificDisplayValue = eval(expression).toString();
+                updateScientificDisplay();
+            } catch (error) {
+                scientificDisplayValue = 'Error';
+                updateScientificDisplay();
+                setTimeout(clearScientificCalculator, 1000);
+            }
+        }
+        
+        // Conversion Calculator
+        document.getElementById('conversionType').addEventListener('change', function() {
+            document.querySelectorAll('.converter-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            const selectedType = this.value;
+            if (selectedType === 'length') {
+                document.getElementById('lengthConverter').style.display = 'block';
+            } else if (selectedType === 'temperature') {
+                document.getElementById('temperatureConverter').style.display = 'block';
+            } else if (selectedType === 'weight') {
+                document.getElementById('weightConverter').style.display = 'block';
+            } else if (selectedType === 'currency') {
+                document.getElementById('currencyConverter').style.display = 'block';
+            } else if (selectedType === 'area') {
+                document.getElementById('areaConverter').style.display = 'block';
+            } else if (selectedType === 'volume') {
+                document.getElementById('volumeConverter').style.display = 'block';
+            } else if (selectedType === 'speed') {
+                document.getElementById('speedConverter').style.display = 'block';
+            }
+        });
+        
+        function convertUnits() {
+            const conversionType = document.getElementById('conversionType').value;
+            
+            if (conversionType === 'length') {
+                const fromValue = parseFloat(document.getElementById('lengthValue').value);
+                const fromUnit = document.getElementById('lengthFrom').value;
+                const toUnit = document.getElementById('lengthTo').value;
+                
+                const toMeters = {
+                    m: 1,
+                    km: 1000,
+                    cm: 0.01,
+                    mm: 0.001,
+                    in: 0.0254,
+                    ft: 0.3048,
+                    yd: 0.9144,
+                    mi: 1609.344
+                };
+                
+                const valueInMeters = fromValue * toMeters[fromUnit];
+                const result = valueInMeters / toMeters[toUnit];
+                
+                document.getElementById('lengthResult').value = result.toFixed(6);
+            } else if (conversionType === 'temperature') {
+                const celsius = parseFloat(document.getElementById('tempValue').value);
+                const fromUnit = document.getElementById('tempFrom').value;
+                const toUnit = document.getElementById('tempTo').value;
+                
+                let result;
+                if (fromUnit === 'c') {
+                    if (toUnit === 'f') {
+                        result = (celsius * 9/5) + 32;
+                    } else if (toUnit === 'k') {
+                        result = celsius + 273.15;
+                    }
+                } else if (fromUnit === 'f') {
+                    if (toUnit === 'c') {
+                        result = (celsius - 32) * 5/9;
+                    } else if (toUnit === 'k') {
+                        result = (celsius - 32) * 5/9 + 273.15;
+                    }
+                } else if (fromUnit === 'k') {
+                    if (toUnit === 'c') {
+                        result = celsius - 273.15;
+                    } else if (toUnit === 'f') {
+                        result = (celsius - 273.15) * 9/5 + 32;
+                    }
+                }
+                
+                document.getElementById('tempResult').value = result.toFixed(2);
+            } else if (conversionType === 'weight') {
+                const fromValue = parseFloat(document.getElementById('weightValue').value);
+                const fromUnit = document.getElementById('weightFrom').value;
+                const toUnit = document.getElementById('weightTo').value;
+                
+                const toKg = {
+                    kg: 1,
+                    g: 0.001,
+                    lb: 0.45359237,
+                    oz: 0.028349523125,
+                    t: 1000
+                };
+                
+                const valueInKg = fromValue * toKg[fromUnit];
+                const result = valueInKg / toKg[toUnit];
+                
+                document.getElementById('weightResult').value = result.toFixed(6);
+            } else if (conversionType === 'currency') {
+                const fromValue = parseFloat(document.getElementById('currencyValue').value);
+                const fromUnit = document.getElementById('currencyFrom').value;
+                const toUnit = document.getElementById('currencyTo').value;
+                const rates = {
+                    usd: { usd: 1, eur: 0.92, gbp: 0.79, jpy: 149.5, cad: 1.35, php: 58.30 },
+                    eur: { usd: 1.09, eur: 1, gbp: 0.86, jpy: 162.5, cad: 1.47, php: 63.60 },
+                    gbp: { usd: 1.26, eur: 1.16, gbp: 1, jpy: 188.8, cad: 1.71, php: 74.20 },
+                    jpy: { usd: 0.0067, eur: 0.0062, gbp: 0.0053, jpy: 1, cad: 0.0090, php: 0.39 },
+                    cad: { usd: 0.74, eur: 0.68, gbp: 0.58, jpy: 110.7, cad: 1, php: 43.20 },
+                    php: { usd: 0.017, eur: 0.016, gbp: 0.013, jpy: 2.56, cad: 0.023, php: 1 }
+                };
+                const result = fromValue * rates[fromUnit][toUnit];
+                document.getElementById('currencyResult').value = result.toFixed(2);
+            } else if (conversionType === 'area') {
+                const fromValue = parseFloat(document.getElementById('areaValue').value);
+                const fromUnit = document.getElementById('areaFrom').value;
+                const toUnit = document.getElementById('areaTo').value;
+                
+                const toM2 = {
+                    m2: 1,
+                    km2: 1000000,
+                    cm2: 0.0001,
+                    ha: 10000,
+                    ac: 4046.86,
+                    ft2: 0.09290304,
+                    mi2: 2589988.11
+                };
+                
+                const valueInM2 = fromValue * toM2[fromUnit];
+                const result = valueInM2 / toM2[toUnit];
+                
+                document.getElementById('areaResult').value = result.toFixed(6);
+            } else if (conversionType === 'volume') {
+                const fromValue = parseFloat(document.getElementById('volumeValue').value);
+                const fromUnit = document.getElementById('volumeFrom').value;
+                const toUnit = document.getElementById('volumeTo').value;
+                
+                const toL = {
+                    l: 1,
+                    ml: 0.001,
+                    gal: 3.785411784,
+                    qt: 0.946352946,
+                    pt: 0.473176473,
+                    cup: 0.24,
+                    fl_oz: 0.0295735295625
+                };
+                
+                const valueInL = fromValue * toL[fromUnit];
+                const result = valueInL / toL[toUnit];
+                
+                document.getElementById('volumeResult').value = result.toFixed(6);
+            } else if (conversionType === 'speed') {
+                const fromValue = parseFloat(document.getElementById('speedValue').value);
+                const fromUnit = document.getElementById('speedFrom').value;
+                const toUnit = document.getElementById('speedTo').value;
+                
+                const toMS = {
+                    m_s: 1,
+                    km_h: 0.2777777778,
+                    mph: 0.44704,
+                    ft_s: 0.3048,
+                    knot: 0.5144444444
+                };
+                
+                const valueInMS = fromValue * toMS[fromUnit];
+                const result = valueInMS / toMS[toUnit];
+                
+                document.getElementById('speedResult').value = result.toFixed(6);
+            }
+        }
+        
+        // Finance Calculator
+        document.getElementById('financeType').addEventListener('change', function() {
+            document.querySelectorAll('.finance-calculator').forEach(calculator => {
+                calculator.style.display = 'none';
+            });
+            
+            const selectedType = this.value;
+            if (selectedType === 'tip') {
+                document.getElementById('tipCalculator').style.display = 'block';
+            } else if (selectedType === 'loan') {
+                document.getElementById('loanCalculator').style.display = 'block';
+            } else if (selectedType === 'mortgage') {
+                document.getElementById('mortgageCalculator').style.display = 'block';
+            } else if (selectedType === 'investment') {
+                document.getElementById('investmentCalculator').style.display = 'block';
+            }
+        });
+        
+        function calculateTip() {
+            const billAmount = parseFloat(document.getElementById('billAmount').value);
+            const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
+            
+            const tipAmount = billAmount * (tipPercentage / 100);
+            const totalAmount = billAmount + tipAmount;
+            
+            document.getElementById('tipResult').value = tipAmount.toFixed(2);
+            document.getElementById('totalAmount').value = totalAmount.toFixed(2);
+        }
+        
+        function calculateLoan() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const loanTerm = parseInt(document.getElementById('loanTerm').value);
+            
+            const monthlyRate = interestRate / 12;
+            const numPayments = loanTerm * 12;
+            
+            const monthlyPayment = (monthlyRate * loanAmount) / (1 - Math.pow(1 + monthlyRate, -numPayments));
+            
+            const totalPayment = monthlyPayment * numPayments;
+            const totalInterest = totalPayment - loanAmount;
+            
+            document.getElementById('monthlyPayment').value = monthlyPayment.toFixed(2);
+            document.getElementById('totalPayment').value = totalPayment.toFixed(2);
+            document.getElementById('totalInterest').value = totalInterest.toFixed(2);
+        }
+        
+        function calculateMortgage() {
+            const homePrice = parseFloat(document.getElementById('homePrice').value);
+            const downPayment = parseFloat(document.getElementById('downPayment').value) / 100;
+            const mortgageRate = parseFloat(document.getElementById('mortgageRate').value) / 100;
+            const mortgageTerm = parseInt(document.getElementById('mortgageTerm').value);
+            
+            const loanAmount = homePrice * (1 - downPayment);
+            
+            const monthlyRate = mortgageRate / 12;
+            const numPayments = mortgageTerm * 12;
+            
+            const monthlyPayment = (monthlyRate * loanAmount) / (1 - Math.pow(1 + monthlyRate, -numPayments));
+            
+            const totalPayment = monthlyPayment * numPayments;
+            const totalInterest = totalPayment - loanAmount;
+            
+            document.getElementById('mortgagePayment').value = monthlyPayment.toFixed(2);
+            document.getElementById('mortgageTotal').value = totalPayment.toFixed(2);
+            document.getElementById('mortgageInterest').value = totalInterest.toFixed(2);
+        }
+        
+        function calculateInvestment() {
+            const initialInvestment = parseFloat(document.getElementById('initialInvestment').value);
+            const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
+            const annualReturn = parseFloat(document.getElementById('annualReturn').value) / 100;
+            const investmentYears = parseInt(document.getElementById('investmentYears').value);
+            
+            const monthlyRate = annualReturn / 12;
+            const numMonths = investmentYears * 12;
+            
+            const futureValue = initialInvestment * Math.pow(1 + monthlyRate, numMonths) + 
+                                monthlyContribution * ((Math.pow(1 + monthlyRate, numMonths) - 1) / monthlyRate);
+            
+            const totalContributions = initialInvestment + (monthlyContribution * numMonths);
+            const totalInterest = futureValue - totalContributions;
+            
+            document.getElementById('futureValue').value = futureValue.toFixed(2);
+            document.getElementById('totalContributions').value = totalContributions.toFixed(2);
+            document.getElementById('totalInterest').value = totalInterest.toFixed(2);
+        }
+        
+        // Other Tools
+        function calculateAge() {
+            const birthDate = new Date(document.getElementById('birthDate').value);
+            const currentDate = new Date(document.getElementById('currentDate').value);
+            
+            if (birthDate && currentDate) {
+                let age = currentDate.getFullYear() - birthDate.getFullYear();
+                
+                const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                document.getElementById('ageResult').value = age;
+            }
+        }
+        
+        function calculatePercentage() {
+            const total = parseFloat(document.getElementById('percentageTotal').value);
+            const percentage = parseFloat(document.getElementById('percentagePart').value);
+            
+            const result = (percentage / 100) * total;
+            
+            document.getElementById('percentageResult').value = result.toFixed(2);
+        }
+        
+        function calculateQuickBMI() {
+            const height = parseFloat(document.getElementById('quickHeight').value) / 100;
+            const weight = parseFloat(document.getElementById('quickWeight').value);
+            
+            if (height && weight) {
+                const bmi = weight / (height * height);
+                let category = '';
+                
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                } else if (bmi >= 18.5 && bmi < 25) {
+                    category = 'Normal weight';
+                } else if (bmi >= 25 && bmi < 30) {
+                    category = 'Overweight';
+                } else {
+                    category = 'Obese';
+                }
+                
+                document.getElementById('quickBMI').value = `${bmi.toFixed(1)} (${category})`;
+            }
+        }
+        
+        function calculateGrade() {
+            const score = parseFloat(document.getElementById('testScore').value);
+            const maxScore = parseFloat(document.getElementById('maxScore').value);
+            
+            if (score >= 0 && score <= maxScore) {
+                const percentage = (score / maxScore) * 100;
+                let grade = '';
+                
+                if (percentage >= 90) {
+                    grade = 'A';
+                } else if (percentage >= 80) {
+                    grade = 'B';
+                } else if (percentage >= 70) {
+                    grade = 'C';
+                } else if (percentage >= 60) {
+                    grade = 'D';
+                } else {
+                    grade = 'F';
+                }
+                
+                document.getElementById('gradeResult').value = `${percentage.toFixed(1)}% (${grade})`;
+            }
+        }
+        
+        // Graph Generator
+        let graphChart = null;
+        
+        function generateGraph() {
+            const functionInput = document.getElementById('functionInput').value;
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            
+            if (isNaN(xMin) || isNaN(xMax)) {
+                alert('Please enter valid X min and X max values');
+                return;
+            }
+            
+            try {
+                const xValues = [];
+                const yValues = [];
+                
+                for (let x = xMin; x <= xMax; x += 0.1) {
+                    xValues.push(x);
+                    
+                    let y;
+                    try {
+                        const expression = functionInput.replace(/x/g, x);
+                        y = eval(expression);
+                    } catch (error) {
+                        y = null;
+                    }
+                    
+                    yValues.push(y);
+                }
+                
+                const ctx = document.getElementById('graphCanvas').getContext('2d');
+                
+                if (graphChart) {
+                    graphChart.destroy();
+                }
+                
+                graphChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            label: functionInput,
+                            data: yValues,
+                            borderColor: 'rgba(30, 144, 255, 1)',
+                            backgroundColor: 'rgba(30, 144, 255, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'X'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Y'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                alert('Error generating graph: ' + error.message);
+            }
+        }
+        
+        // Initialize date inputs with current date XD
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('currentDate').value = today;
+        });
+    </script>
+</body>
+</html>
